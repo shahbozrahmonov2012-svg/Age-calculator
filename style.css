@@ -1,0 +1,134 @@
+body {
+  background: radial-gradient(circle at top, #1a1a1f 0%, #09090d 85%);
+  color: #f5f7ff;
+  font-family: Inter, Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.container {
+  width: min(440px, calc(100% - 32px));
+  text-align: center;
+  padding: 32px;
+  border-radius: 28px;
+  background: rgba(20, 24, 38, 0.95);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+}
+
+p {
+  margin: 0 0 24px;
+  color: #c9d0ff;
+  opacity: 0.85;
+}
+
+input {
+  width: 100%;
+  max-width: 100%;
+  padding: 14px 16px;
+  margin: 0 0 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(215, 208, 208, 0.04);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+}
+
+input:focus {
+  border-color: #6d82ff;
+  box-shadow: 0 0 0 4px rgba(109, 130, 255, 0.15);
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 16px;
+  padding: 14px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+#calculateBtn {
+  width: 100%;
+  color: #fff;
+  background: linear-gradient(135deg, #5f7bff, #3c5aec);
+  box-shadow: 0 16px 30px rgba(42, 60, 130, 0.3);
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8ecff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 12px 16px;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.result-card {
+  margin-top: 24px;
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(19, 23, 36, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.age-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.age-summary span {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.details {
+  margin-top: 20px;
+}
+
+.detail-item {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: #d4d9ff;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.message {
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f4f6ff;
+}

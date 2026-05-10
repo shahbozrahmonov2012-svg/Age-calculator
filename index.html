@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Age Calculator 2026</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>Age Calculator 📅</h1>
+
+  <div class="settings">
+    <div class="setting-group">
+      <label for="timezoneInput">Select your region:</label>
+      <div class="timezone-field">
+        <input 
+          list="timezoneList" 
+          id="timezoneInput" 
+          placeholder="Search timezone or region"
+          autocomplete="off"
+        />
+        <datalist id="timezoneList"></datalist>
+        <button type="button" class="gps-button" id="gpsBadge" title="Click to detect GPS location">🔍</button>
+      </div>
+    </div>
+
+    <div class="info-line">
+      <span id="timezoneInfo">Detecting timezone…</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="birthDate">Birth date:</label>
+    <input type="date" id="birthDate">
+    <button type="button" id="calculateBtn" class="primary-btn">
+      Calculate age
+    </button>
+  </div>
+
+  <div id="result" class="result-card hidden">
+    <div class="summary-section">
+      <div class="age-display">
+        <span id="summaryText"></span>
+      </div>
+    </div>
+
+    <div id="equivalent" class="equivalent hidden"></div>
+
+    <div class="show-all-wrapper">
+      <button type="button" id="toggleDetailsBtn" class="show-all-btn hidden">
+        Show all breakdown
+      </button>
+    </div>
+
+    <div id="details" class="details hidden"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
