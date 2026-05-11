@@ -1,93 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  background: radial-gradient(circle at top, #1a1a1f 0%, #09090d 85%);
+  /* Sizning original chuqur foningiz, yanada tiniqroq gradient bilan */
+  background: radial-gradient(circle at top, #1a1a1f 0%, #050508 100%);
   color: #f5f7ff;
-  font-family: Inter, Arial, sans-serif;
+  font-family: 'Inter', Arial, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  margin: 0;
 }
 
 .container {
   width: min(440px, calc(100% - 32px));
   text-align: center;
-  padding: 32px;
+  padding: 40px 32px;
   border-radius: 28px;
-  background: rgba(20, 24, 38, 0.95);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Original to'q rang, lekin nozik shisha (blur) effekti bilan */
+  background: rgba(20, 24, 38, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(109, 130, 255, 0.12); /* Nozik ko'k hoshiya */
 }
 
 h1 {
   margin: 0 0 12px;
-  font-size: 2rem;
+  font-size: 2.2rem;
+  font-weight: 800;
   letter-spacing: -0.04em;
+  /* Sarlavhaga sizning original och ko'k rangingizda jilo */
+  background: linear-gradient(135deg, #ffffff 0%, #c9d0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 p {
-  margin: 0 0 24px;
-  color: #c9d0ff;
+  margin: 0 0 28px;
+  color: #c9d0ff; /* Sizning original rangingiz */
+  font-size: 0.95rem;
   opacity: 0.85;
 }
 
 input {
   width: 100%;
-  max-width: 100%;
-  padding: 14px 16px;
-  margin: 0 0 16px;
-  border-radius: 16px;
+  padding: 16px 20px;
+  margin: 0 0 20px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(215, 208, 208, 0.04);
+  background: rgba(215, 208, 208, 0.05);
   color: #fff;
-  font-size: 1rem;
+  font-size: 1.05rem;
   outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input::placeholder {
+  color: rgba(201, 208, 255, 0.4);
+}
+
+input:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 input:focus {
+  /* Sizning original fokus rangingiz (#6d82ff) va uning nurlanishi */
   border-color: #6d82ff;
-  box-shadow: 0 0 0 4px rgba(109, 130, 255, 0.15);
+  background: rgba(109, 130, 255, 0.05);
+  box-shadow: 0 0 0 4px rgba(109, 130, 255, 0.25);
+  transform: translateY(-2px);
 }
 
 button {
   cursor: pointer;
   border: 0;
-  border-radius: 16px;
-  padding: 14px 18px;
-  font-size: 1rem;
+  border-radius: 18px;
+  padding: 16px 20px;
+  font-size: 1.05rem;
   font-weight: 600;
-  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: 0.02em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-button:hover {
-  transform: translateY(-1px);
+button:active {
+  transform: scale(0.96);
 }
 
 #calculateBtn {
   width: 100%;
   color: #fff;
-  background: linear-gradient(135deg, #5f7bff, #3c5aec);
-  box-shadow: 0 16px 30px rgba(42, 60, 130, 0.3);
+  /* Sizning original ajoyib gradientingiz */
+  background: linear-gradient(135deg, #5f7bff 0%, #3c5aec 100%);
+  /* Shu ranglarga moslashgan kuchli soya */
+  box-shadow: 0 16px 32px rgba(60, 90, 236, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+#calculateBtn:hover {
+  background: linear-gradient(135deg, #6d82ff 0%, #4665f0 100%);
+  box-shadow: 0 20px 40px rgba(60, 90, 236, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .secondary-btn {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   color: #e8ecff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 12px 16px;
 }
 
 .secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Natija chiqish animatsiyasi */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .result-card {
-  margin-top: 24px;
-  padding: 22px;
-  border-radius: 22px;
-  background: rgba(19, 23, 36, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 28px;
+  padding: 24px;
+  border-radius: 24px;
+  /* Original fon, biroz yumshatilgan */
+  background: rgba(19, 23, 36, 0.85);
+  border: 1px solid rgba(109, 130, 255, 0.15);
   text-align: left;
+  animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .age-summary {
@@ -96,39 +143,47 @@ button:hover {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .age-summary span {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
 }
 
 .details {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .detail-item {
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 0;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
-  color: #d4d9ff;
+  color: #d4d9ff; /* Sizning original rangingiz */
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
-.detail-item:last-child {
-  border-bottom: none;
+.detail-item strong {
+  color: #fff;
+  font-size: 1.1rem;
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .message {
-  margin: 0;
+  margin-top: 20px;
   padding: 16px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #f4f6ff;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  font-size: 0.95rem;
+  animation: slideUpFade 0.3s ease forwards;
 }
