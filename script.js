@@ -8,10 +8,74 @@ const resultCard = document.getElementById('result');
 const summaryText = document.getElementById('summaryText');
 const detailsContainer = document.getElementById('details');
 const equivalentContainer = document.getElementById('equivalent');
+const birthDateInput = document.getElementById('birthDate');
 
 let selectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 let updateInterval = null;
 let isGpsDetecting = false;
+
+// Xato bermasligi uchun bo'sh funksiya (agar HTML-da chaqirilgan bo'lsa)
+window.applyTimezoneFromInput = function() { return null; };
+
+if (calculateBtn) {
+    calculateBtn.addEventListener('click', () => {
+        const birthDateValue = birthDateInput.value;
+        
+        if (!birthDateValue) {
+            alert("Iltimos, sanani kiriting!");
+            return;
+        }
+
+        const birth = new Date(birthDateValue);
+        const now = new Date();
+
+        // Farqni hisoblash
+        let years = now.getFullYear() - birth.getFullYear();
+        let months = now.getMonth() - birth.getMonth();
+        let days = now.getDate() - birth.getDate();
+
+        if (days < 0) {
+            months--;
+            days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        }
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        // Ekranga chiqarish
+        const summaryText = document.getElementById('summaryText');
+        if (summaryText) {
+            summaryText.innerHTML = `<span style="color: #ff00ff">${years}</span> years`;
+        }
+
+        // Boshqa ma'lumotlarni yangilash (Months, Days, Hours...)
+        updateDetails(birth, now);
+
+        // Natijani ko'rsatish
+        resultCard.classList.remove('hidden');
+        resultCard.style.display = 'block'; // Majburiy ko'rsatish
+    });
+}
+
+function updateDetails(birth, now) {
+    const diff = now - birth;
+    const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    // HTML ichidagi elementlarga qiymat berish (ID lar mavjudligini tekshirib)
+    const elements = {
+        'totalMonths': Math.floor(totalDays / 30.44),
+        'totalDays': totalDays,
+        'totalHours': Math.floor(diff / (1000 * 60 * 60)),
+        'totalMinutes': Math.floor(diff / (1000 * 60)),
+        'totalSeconds': Math.floor(diff / 1000)
+    };
+
+    for (const [id, value] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = value.toLocaleString();
+    }
+}
 
 window.addEventListener('load', initApp);
 timezoneInput.addEventListener('change', applyTimezoneFromInput);

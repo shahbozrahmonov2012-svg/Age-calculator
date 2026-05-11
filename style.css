@@ -562,44 +562,115 @@ button:active::before {
   } 
 }
 
-/* --- MOBILE OPTIMIZATION (Faqat telefonlar uchun) --- */
+/* Mobil qurilmalar uchun maxsus sozlamalar */
+@media (max-width: 480px) {
+  .container {
+    padding: 15px; /* Chekka masofalarni kamaytiramiz */
+    margin: 10px;
+  }
+
+  /* Yosh ko'rsatkichini kattalashtiramiz */
+  .age-display {
+    font-size: 2.5rem !important; 
+    padding: 20px 10px;
+  }
+
+  /* Natijalar katakchalarini 2 tadan chiroyli joylaymiz */
+  .details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 ta ustun */
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .detail-card {
+    padding: 15px 10px !important;
+    min-height: 80px;
+  }
+
+  .detail-card h3 {
+    font-size: 0.8rem; /* Sarlavhalarni kichraytiramiz */
+  }
+
+  .detail-card p {
+    font-size: 1.1rem !important; /* Raqamlarni moslaymiz */
+  }
+
+  /* "Show all breakdown" tugmasini to'liq kenglikda qilamiz */
+  .show-all-btn {
+    width: 100%;
+    margin-top: 15px;
+  }
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Elementlar orasidagi masofa */
+  margin-top: 10px;
+}
+
+#birthDate {
+  margin-bottom: 5px; /* Ortiqcha pastki masofani olib tashlaymiz */
+}
 @media (max-width: 768px) {
-  /* 1. Shishasimon effektni (blur) o'chiramiz, bu eng ko'p qotiradigan narsa */
-  .container, 
-  input, 
-  .result-card, 
-  .timezone-field input {
+  .container, .result-card, input {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background: rgba(30, 31, 45, 0.95) !important; /* To'q va shaffof bo'lmagan fon */
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: rgba(26, 26, 31, 0.95); /* Shaffoflik o'rniga rang beramiz */
+  }
+}
+/* Asosiy konteyner optimizatsiyasi */
+.container {
+  max-width: 500px;
+  width: 95%;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  will-change: transform; /* Mobil uchun tezlashtirish */
+}
+
+/* Sana kiritish maydoni - Qo'lda yozish uchun qulaylik */
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 50px;
+  color-scheme: dark; /* Brauzer kalendarini qora qiladi */
+  cursor: text;
+}
+
+/* Natijalar panjarasi (Grid) */
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 ta ustun */
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Mobil moslashuvchanlik */
+@media (max-width: 480px) {
+  .details {
+    grid-template-columns: repeat(2, 1fr); /* Telefonda ham 2 ta ustun */
+    gap: 10px;
+  }
+  
+  .age-display {
+    font-size: 2.2rem !important;
   }
 
-  /* 2. Murakkab soyalarni soddalashtiramiz */
-  * {
-    box-shadow: none !important;
-    text-shadow: none !important;
+  /* Mobil uchun og'ir effektlarni o'chirish (Qotmasligi uchun) */
+  .container, .result-card {
+    backdrop-filter: none !important;
+    background: rgba(18, 18, 23, 0.98);
   }
+}
 
-  /* 3. Animatsiyalarni tezlashtiramiz yoki o'chiramiz */
-  * {
-    transition: transform 0.1s ease, opacity 0.1s ease !important;
-  }
+/* Tugma effekti */
+.primary-btn {
+  background: linear-gradient(135deg, #ff00ff, #00ffff);
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
 
-  /* 4. Input va tugmalarni mobilga moslab kattalashtiramiz (barmoq bilan bosish oson bo'lsin) */
-  input, button {
-    height: 55px;
-    font-size: 16px !important; /* iOS da avtomatik zoom bo'lib ketmasligi uchun */
-  }
-
-  /* 5. Natijalar qismini yengilroq qilish */
-  .result-card {
-    border: 2px solid #63f7ff !important; /* Blur o'rniga yupqa neon chegara */
-  }
-
-  /* 6. GPU (videokarta) ni ishga solamiz */
-  .container {
-    transform: translateZ(0);
-    will-change: transform;
-  }
+.primary-btn:active {
+  transform: scale(0.96);
 }
