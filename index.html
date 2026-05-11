@@ -10,59 +10,58 @@
 <body>
 
 <div class="container">
-
   <div class="header-section">
-    <h1>Age Calculator 🧮</h1>
-    <p class="subtitle">Know your exact age instantly</p>
+    <h1>Age Calculator <span class="title-emoji">🧮</span></h1>
+    <p class="subtitle">Know your exact age in years, months, days, and more</p>
   </div>
 
-  <div class="form-group">
-
-    <label>📍 Your Region</label>
-
-    <div class="timezone-field">
-      <input id="timezoneInput" list="timezoneList" placeholder="Search timezone">
-      <datalist id="timezoneList"></datalist>
-
-      <button id="gpsBadge" class="gps-button">
-        📍
-      </button>
+  <div class="settings">
+    <div class="setting-group">
+      <label for="timezoneInput"><span class="label-emoji">📍</span>Your Region</label>
+      <div class="timezone-field">
+        <input 
+          list="timezoneList" 
+          id="timezoneInput" 
+          placeholder="Search timezone or tap GPS to auto-detect"
+          autocomplete="off"
+        />
+        <datalist id="timezoneList"></datalist>
+        <button type="button" class="gps-button" id="gpsBadge" title="Auto-detect your location">📍</button>
+      </div>
     </div>
 
     <div class="info-line">
       <span id="timezoneInfo">Detecting location...</span>
     </div>
-
   </div>
 
   <div class="form-group">
-
-    <label>🗓 Birth Date</label>
-
-    <input type="date" id="birthDate">
-
-    <button id="calculateBtn">
-      ✨ Calculate My Age
+    <label for="birthDate"><span class="label-emoji calendar">🗓️</span>When were you born?</label>
+    <input type="date" id="birthDate" placeholder="Select your birth date">
+    <button type="button" id="calculateBtn" class="primary-btn">
+      <span class="button-emoji">✨</span> Calculate My Age
     </button>
-
   </div>
 
   <div id="result" class="result-card hidden">
-
-    <div class="age-display">
-      <span id="summaryText"></span>
+    <div class="summary-section">
+      <div class="age-display-wrapper">
+        <div class="age-display">
+          <span id="summaryText"></span>
+        </div>
+      </div>
     </div>
 
-    <div id="equivalent" class="equivalent"></div>
+    <div id="equivalent" class="equivalent hidden"></div>
 
-    <button id="toggleDetailsBtn" class="show-all-btn hidden">
-      Show Details
-    </button>
+    <div class="show-all-wrapper">
+      <button type="button" id="toggleDetailsBtn" class="show-all-btn hidden">
+        📊 Show all breakdown
+      </button>
+    </div>
 
     <div id="details" class="details hidden"></div>
-
   </div>
-
 </div>
 
 <script src="script.js"></script>
