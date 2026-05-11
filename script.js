@@ -44,6 +44,7 @@ function populateTimeZoneList() {
 function manualGpsDetection() {
   // Always allow GPS detection, even if previous one is pending
   isGpsDetecting = true;
+  timezoneInfo.textContent = 'Detecting location...';
   gpsBadge.classList.add('loading');
   gpsBadge.style.opacity = '0.6';
   
@@ -53,6 +54,7 @@ function manualGpsDetection() {
       isGpsDetecting = false;
       gpsBadge.classList.remove('loading');
       gpsBadge.style.opacity = '1';
+      timezoneInfo.textContent = 'Location detection timed out. Try again.';
     }
   }, 12000);
   
@@ -118,6 +120,8 @@ function detectLocationAndSetTimeZone(isManual = false, resetTimeout = null) {
           timezoneInfo.textContent = 'Please enable location permissions in your browser.';
         } else if (error.code === error.POSITION_UNAVAILABLE) {
           timezoneInfo.textContent = 'Location information unavailable.';
+        } else if (error.code === error.TIMEOUT) {
+          timezoneInfo.textContent = 'Location detection timed out. Please try again.';
         } else {
           timezoneInfo.textContent = 'Could not detect location. Try again.';
         }
