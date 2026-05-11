@@ -11,16 +11,23 @@ const equivalentContainer = document.getElementById('equivalent');
 
 let selectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 let updateInterval = null;
+let isGpsDetecting = false;
 
 window.addEventListener('load', initApp);
 timezoneInput.addEventListener('change', applyTimezoneFromInput);
-timezoneInput.addEventListener('input', applyTimezoneFromInput);
+timezoneInput.addEventListener('input', () => {
+  const value = timezoneInput.value.trim();
+  if (value && isValidTimeZone(value)) {
+    setTimeZone(value);
+  }
+});
 gpsBadge.addEventListener('click', manualGpsDetection);
 calculateBtn.addEventListener('click', calculateAge);
 toggleDetailsBtn.addEventListener('click', toggleDetailView);
 
 function initApp() {
   populateTimeZoneList();
+  setTimeZone(selectedTimeZone);
   detectLocationAndSetTimeZone();
 }
 
@@ -35,7 +42,10 @@ function populateTimeZoneList() {
 }
 
 function manualGpsDetection() {
+  if (isGpsDetecting) return;
+  isGpsDetecting = true;
   gpsBadge.classList.add('loading');
+  gpsBadge.style.opacity = '0.6';
   detectLocationAndSetTimeZone(true);
 }
 
@@ -53,8 +63,12 @@ function getTimeZones() {
 
 function detectLocationAndSetTimeZone(isManual = false) {
   if (!navigator.geolocation) {
-    gpsBadge.textContent = '❌';
+    isGpsDetecting = false;
     gpsBadge.classList.remove('loading');
+    gpsBadge.style.opacity = '1';
+    if (isManual) {
+      timezoneInfo.textContent = 'GPS not available. Using default timezone.';
+    }
     setTimeZone(selectedTimeZone);
     return;
   }
@@ -63,21 +77,32 @@ function detectLocationAndSetTimeZone(isManual = false) {
     async position => {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
-      gpsBadge.textContent = '✓';
-      gpsBadge.classList.remove('loading');
 
-      // Try to get timezone from coordinates
       try {
         const timezone = await getTimezoneFromCoords(lat, lon);
         setTimeZone(timezone);
+        if (isManual) {
+          timezoneInfo.textContent = `✓ Location detected: ${timezone}`;
+        }
       } catch (error) {
-        // Fallback to browser timezone
-        setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone || selectedTimeZone);
+        const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+        setTimeZone(browserTz);
+        if (isManual) {
+          timezoneInfo.textContent = `Using timezone: ${browserTz}`;
+        }
+      } finally {
+        isGpsDetecting = false;
+        gpsBadge.classList.remove('loading');
+        gpsBadge.style.opacity = '1';
       }
     },
     error => {
-      gpsBadge.textContent = '📍';
+      isGpsDetecting = false;
       gpsBadge.classList.remove('loading');
+      gpsBadge.style.opacity = '1';
+      if (isManual) {
+        timezoneInfo.textContent = 'Could not detect location. Please enable GPS.';
+      }
       setTimeZone(selectedTimeZone);
     },
     { timeout: 10000, enableHighAccuracy: true }
@@ -154,14 +179,7 @@ async function getTimezoneFromCoords(lat, lon) {
   }
 }
 
-function applyTimezoneFromInput() {
-  const value = timezoneInput.value.trim();
-  if (!value) return;
-  
-  if (isValidTimeZone(value)) {
-    setTimeZone(value);
-  }
-}
+// Removed - now handled inline in addEventListener
 
 function isValidTimeZone(tz) {
   try {
@@ -178,6 +196,7 @@ function setTimeZone(timeZone) {
   }
   selectedTimeZone = timeZone;
   timezoneInput.value = timeZone;
+  timezoneInput.blur();
   
   if (updateInterval) clearInterval(updateInterval);
   updateLocalTime();
