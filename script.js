@@ -42,11 +42,21 @@ function populateTimeZoneList() {
 }
 
 function manualGpsDetection() {
-  if (isGpsDetecting) return;
+  // Always allow GPS detection, even if previous one is pending
   isGpsDetecting = true;
   gpsBadge.classList.add('loading');
   gpsBadge.style.opacity = '0.6';
-  detectLocationAndSetTimeZone(true);
+  
+  // Auto-reset flag after 12 seconds to allow retrying
+  const resetTimeout = setTimeout(() => {
+    if (isGpsDetecting) {
+      isGpsDetecting = false;
+      gpsBadge.classList.remove('loading');
+      gpsBadge.style.opacity = '1';
+    }
+  }, 12000);
+  
+  detectLocationAndSetTimeZone(true, resetTimeout);
 }
 
 function getTimeZones() {
@@ -61,13 +71,14 @@ function getTimeZones() {
   ];
 }
 
-function detectLocationAndSetTimeZone(isManual = false) {
+function detectLocationAndSetTimeZone(isManual = false, resetTimeout = null) {
   if (!navigator.geolocation) {
     isGpsDetecting = false;
     gpsBadge.classList.remove('loading');
     gpsBadge.style.opacity = '1';
+    if (resetTimeout) clearTimeout(resetTimeout);
     if (isManual) {
-      timezoneInfo.textContent = 'GPS not available. Using default timezone.';
+      timezoneInfo.textContent = 'GPS not available on this device.';
     }
     setTimeZone(selectedTimeZone);
     return;
@@ -82,7 +93,7 @@ function detectLocationAndSetTimeZone(isManual = false) {
         const timezone = await getTimezoneFromCoords(lat, lon);
         setTimeZone(timezone);
         if (isManual) {
-          timezoneInfo.textContent = `✓ Location detected: ${timezone}`;
+          timezoneInfo.textContent = `Location detected: ${timezone}`;
         }
       } catch (error) {
         const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -94,14 +105,22 @@ function detectLocationAndSetTimeZone(isManual = false) {
         isGpsDetecting = false;
         gpsBadge.classList.remove('loading');
         gpsBadge.style.opacity = '1';
+        if (resetTimeout) clearTimeout(resetTimeout);
       }
     },
     error => {
       isGpsDetecting = false;
       gpsBadge.classList.remove('loading');
       gpsBadge.style.opacity = '1';
+      if (resetTimeout) clearTimeout(resetTimeout);
       if (isManual) {
-        timezoneInfo.textContent = 'Could not detect location. Please enable GPS.';
+        if (error.code === error.PERMISSION_DENIED) {
+          timezoneInfo.textContent = 'Please enable location permissions in your browser.';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          timezoneInfo.textContent = 'Location information unavailable.';
+        } else {
+          timezoneInfo.textContent = 'Could not detect location. Try again.';
+        }
       }
       setTimeZone(selectedTimeZone);
     },
