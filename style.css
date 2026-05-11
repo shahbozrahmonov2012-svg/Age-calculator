@@ -25,9 +25,16 @@ body::before {
   width: 100%;
   height: 100%;
   background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 50% 20%, rgba(99, 247, 255, 0.05) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
+  animation: backgroundFloat 20s ease-in-out infinite;
+}
+
+@keyframes backgroundFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
 }
 
 .container {
@@ -36,11 +43,29 @@ body::before {
   padding: 40px;
   border-radius: 32px;
   background: rgba(20, 24, 38, 0.7);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37),
-              inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+              0 0 60px rgba(99, 247, 255, 0.1),
+              0 0 120px rgba(255, 99, 247, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  animation: slideIn 0.8s ease-out;
+  animation: slideIn 0.8s ease-out, glowPulse 4s ease-in-out infinite alternate;
+  position: relative;
+}
+
+@keyframes glowPulse {
+  from {
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 60px rgba(99, 247, 255, 0.1),
+                0 0 120px rgba(255, 99, 247, 0.05);
+  }
+  to {
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 80px rgba(99, 247, 255, 0.15),
+                0 0 160px rgba(255, 99, 247, 0.08);
+  }
 }
 
 @keyframes slideIn {
@@ -72,7 +97,13 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientShift 3s ease infinite;
+  animation: gradientShift 3s ease infinite, textGlow 2s ease-in-out infinite alternate;
+  text-shadow: 0 0 20px rgba(99, 247, 255, 0.3);
+}
+
+@keyframes textGlow {
+  from { text-shadow: 0 0 20px rgba(99, 247, 255, 0.3); }
+  to { text-shadow: 0 0 40px rgba(99, 247, 255, 0.5), 0 0 80px rgba(255, 99, 247, 0.2); }
 }
 
 @keyframes gradientShift {
@@ -116,6 +147,10 @@ label {
 
 .label-emoji {
   margin-right: 6px;
+}
+
+.label-emoji.calendar {
+  color: #63f7ff;
 }
 
 .timezone-field {
@@ -216,8 +251,25 @@ button:active::before {
   background: linear-gradient(135deg, #63f7ff 0%, #ff63f7 50%, #63f7ff 100%);
   background-size: 200% 200%;
   box-shadow: 0 8px 20px rgba(99, 247, 255, 0.3),
-              0 0 20px rgba(255, 99, 247, 0.2);
-  animation: backgroundShift 4s ease infinite;
+              0 0 20px rgba(255, 99, 247, 0.2),
+              inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  animation: backgroundShift 4s ease infinite, buttonGlow 2s ease-in-out infinite alternate;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes buttonGlow {
+  from {
+    box-shadow: 0 8px 20px rgba(99, 247, 255, 0.3),
+                0 0 20px rgba(255, 99, 247, 0.2),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+  to {
+    box-shadow: 0 12px 30px rgba(99, 247, 255, 0.5),
+                0 0 40px rgba(255, 99, 247, 0.3),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  }
+}
 }
 
 @keyframes backgroundShift {
@@ -240,12 +292,26 @@ button:active::before {
   margin-top: 28px;
   padding: 28px;
   border-radius: 24px;
-  background: rgba(19, 23, 36, 0.7);
-  backdrop-filter: blur(10px);
+  background: rgba(19, 23, 36, 0.8);
+  backdrop-filter: blur(15px);
   border: 1px solid rgba(99, 247, 255, 0.2);
   box-shadow: 0 8px 32px rgba(99, 247, 255, 0.1),
-              inset 0 1px 1px rgba(255, 255, 255, 0.1);
-  animation: cardAppear 0.6s ease-out;
+              inset 0 1px 1px rgba(255, 255, 255, 0.1),
+              0 0 40px rgba(99, 247, 255, 0.05);
+  animation: cardAppear 0.6s ease-out, cardGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes cardGlow {
+  from {
+    box-shadow: 0 8px 32px rgba(99, 247, 255, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1),
+                0 0 40px rgba(99, 247, 255, 0.05);
+  }
+  to {
+    box-shadow: 0 8px 32px rgba(99, 247, 255, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                0 0 60px rgba(99, 247, 255, 0.08);
+  }
 }
 
 @keyframes cardAppear {
@@ -277,7 +343,8 @@ button:active::before {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: numberGlow 2s ease-in-out infinite alternate;
+  animation: numberGlow 2s ease-in-out infinite alternate, gradientShift 3s ease infinite;
+  text-shadow: 0 0 20px rgba(99, 247, 255, 0.3);
 }
 
 @keyframes numberGlow {

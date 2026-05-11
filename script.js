@@ -41,9 +41,17 @@ function populateTimeZoneList() {
   timezoneInput.value = selectedTimeZone;
 }
 
+function applyTimezoneFromInput() {
+  const value = timezoneInput.value.trim();
+  if (value && isValidTimeZone(value)) {
+    setTimeZone(value);
+  }
+}
+
 function manualGpsDetection() {
   // Always allow GPS detection, even if previous one is pending
   isGpsDetecting = true;
+  if (updateInterval) clearInterval(updateInterval); // Pause time updates
   timezoneInfo.textContent = 'Detecting location...';
   gpsBadge.classList.add('loading');
   gpsBadge.style.opacity = '0.6';
@@ -55,6 +63,7 @@ function manualGpsDetection() {
       gpsBadge.classList.remove('loading');
       gpsBadge.style.opacity = '1';
       timezoneInfo.textContent = 'Location detection timed out. Try again.';
+      updateInterval = setInterval(updateLocalTime, 1000); // Restart time updates
     }
   }, 12000);
   
@@ -108,6 +117,7 @@ function detectLocationAndSetTimeZone(isManual = false, resetTimeout = null) {
         gpsBadge.classList.remove('loading');
         gpsBadge.style.opacity = '1';
         if (resetTimeout) clearTimeout(resetTimeout);
+        updateInterval = setInterval(updateLocalTime, 1000); // Restart time updates
       }
     },
     error => {
