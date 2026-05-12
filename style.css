@@ -104,10 +104,28 @@ label {
 .title-emoji,
 .button-emoji {
   vertical-align: middle;
+  color: #ffffff;
 }
 
 .label-emoji {
   margin-right: 8px;
+}
+
+.label-emoji.calendar {
+  color: #ffffff;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  display: inline-block;
+}
+
+.label-emoji.calendar:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px rgba(99, 247, 255, 0.5));
+}
+
+.label-emoji.calendar:active {
+  transform: scale(1.08);
 }
 
 .timezone-field {

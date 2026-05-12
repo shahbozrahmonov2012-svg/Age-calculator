@@ -10,6 +10,7 @@ const detailsContainer = document.getElementById('details');
 const equivalentContainer = document.getElementById('equivalent');
 const birthDateInput = document.getElementById('birthDate');
 const mobileDateHint = document.getElementById('mobileDateHint');
+const calendarEmojiButton = document.getElementById('calendarEmojiButton');
 
 let selectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 let updateInterval = null;
@@ -23,77 +24,206 @@ function prepareBirthDateInput() {
   if (!birthDateInput) return;
   if (isMobileDevice()) {
     birthDateInput.type = 'text';
-    birthDateInput.placeholder = 'YYYY-MM-DD';
+    birthDateInput.placeholder = 'DD.MM.YYYY';
     birthDateInput.setAttribute('inputmode', 'numeric');
-    birthDateInput.setAttribute('pattern', '\\d{4}-\\d{2}-\\d{2}');
-    birthDateInput.title = 'Type your birth date in YYYY-MM-DD format';
+    birthDateInput.setAttribute('maxlength', '10');
+    birthDateInput.title = 'Enter your birth date as DD.MM.YYYY';
     if (mobileDateHint) {
       mobileDateHint.classList.remove('hidden');
     }
+    birthDateInput.addEventListener('input', formatMobileDateInput);
   }
 }
 
-// Xato bermasligi uchun bo'sh funksiya (agar HTML-da chaqirilgan bo'lsa)
-window.applyTimezoneFromInput = function() { return null; };
-
-if (calculateBtn) {
-    calculateBtn.addEventListener('click', () => {
-        const birthDateValue = birthDateInput.value;
-        
-        if (!birthDateValue) {
-            alert("Iltimos, sanani kiriting!");
-            return;
-        }
-
-        const birth = new Date(birthDateValue);
-        const now = new Date();
-
-        // Farqni hisoblash
-        let years = now.getFullYear() - birth.getFullYear();
-        let months = now.getMonth() - birth.getMonth();
-        let days = now.getDate() - birth.getDate();
-
-        if (days < 0) {
-            months--;
-            days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-        }
-        if (months < 0) {
-            years--;
-            months += 12;
-        }
-
-        // Ekranga chiqarish
-        const summaryText = document.getElementById('summaryText');
-        if (summaryText) {
-            summaryText.innerHTML = `<span style="color: #ff00ff">${years}</span> years`;
-        }
-
-        // Boshqa ma'lumotlarni yangilash (Months, Days, Hours...)
-        updateDetails(birth, now);
-
-        // Natijani ko'rsatish
-        resultCard.classList.remove('hidden');
-        resultCard.style.display = 'block'; // Majburiy ko'rsatish
-    });
+function formatMobileDateInput(event) {
+  let value = event.target.value.replace(/\D/g, '');
+  if (value.length >= 2) {
+    value = value.slice(0, 2) + '.' + value.slice(2);
+  }
+  if (value.length >= 5) {
+    value = value.slice(0, 5) + '.' + value.slice(5, 9);
+  }
+  event.target.value = value;
 }
 
-function updateDetails(birth, now) {
-    const diff = now - birth;
-    const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    // HTML ichidagi elementlarga qiymat berish (ID lar mavjudligini tekshirib)
-    const elements = {
-        'totalMonths': Math.floor(totalDays / 30.44),
-        'totalDays': totalDays,
-        'totalHours': Math.floor(diff / (1000 * 60 * 60)),
-        'totalMinutes': Math.floor(diff / (1000 * 60)),
-        'totalSeconds': Math.floor(diff / 1000)
-    };
-
-    for (const [id, value] of Object.entries(elements)) {
-        const el = document.getElementById(id);
-        if (el) el.innerText = value.toLocaleString();
+function parseDateInput(dateValue) {
+  if (!dateValue) return null;
+  
+  let date = null;
+  
+  // Check if it's DD.MM.YYYY format (mobile)
+  if (dateValue.includes('.')) {
+    const parts = dateValue.split('.');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10);
+      if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
+        date = new Date(year, month - 1, day, 0, 0, 0, 0);
+      }
     }
+  } else {
+    // Try standard date parsing (YYYY-MM-DD)
+    date = new Date(dateValue + 'T00:00:00');
+  }
+  
+  return date && !isNaN(date.getTime()) ? date : null;
+}
+
+window.applyTimezoneFromInput = function() { return null; };
+
+function calculateAge() {
+  const birthDateValue = birthDateInput.value;
+  
+  if (!birthDateValue) {
+    showMessage('Please select your birth date.');
+    return;
+  }
+
+  const birthDate = parseDateInput(birthDateValue);
+  if (!birthDate || isNaN(birthDate.getTime())) {
+    showMessage('Invalid date format.');
+    return;
+  }
+
+  const now = new Date();
+  if (birthDate > now) {
+    showMessage('Birth date cannot be in the future.');
+    return;
+  }
+
+  const age = getExactAge(birthDate, now);
+  const summary = formatAgeSummary(age);
+  const breakdown = buildBreakdown(age);
+  const equivalent = buildEquivalent(age);
+
+  summaryText.textContent = summary;
+  
+  if (equivalent.length > 0) {
+    equivalentContainer.innerHTML = `
+      <div class="equivalent-title">Also as:</div>
+      ${equivalent.map(item => `<div class="equivalent-item"><span>${item.label}</span><strong>${item.value}</strong></div>`).join('')}
+    `;
+  } else {
+    equivalentContainer.innerHTML = '';
+  }
+
+  detailsContainer.innerHTML = breakdown
+    .map(item => `<div class="detail-item"><span>${item.label}</span><strong>${item.value}</strong></div>`)
+    .join('');
+
+  resultCard.classList.remove('hidden');
+  toggleDetailsBtn.classList.remove('hidden');
+  equivalentContainer.classList.remove('hidden');
+  detailsContainer.classList.add('hidden');
+  toggleDetailsBtn.textContent = '📊 Show all breakdown';
+}
+
+function showMessage(message) {
+  resultCard.classList.remove('hidden');
+  toggleDetailsBtn.classList.add('hidden');
+  detailsContainer.classList.add('hidden');
+  equivalentContainer.classList.add('hidden');
+  summaryText.textContent = message;
+}
+
+function getExactAge(birthDate, now) {
+  let years = now.getFullYear() - birthDate.getFullYear();
+  let months = now.getMonth() - birthDate.getMonth();
+  let days = now.getDate() - birthDate.getDate();
+  let hours = now.getHours() - birthDate.getHours();
+  let minutes = now.getMinutes() - birthDate.getMinutes();
+  let seconds = now.getSeconds() - birthDate.getSeconds();
+
+  if (seconds < 0) {
+    seconds += 60;
+    minutes -= 1;
+  }
+
+  if (minutes < 0) {
+    minutes += 60;
+    hours -= 1;
+  }
+
+  if (hours < 0) {
+    hours += 24;
+    days -= 1;
+  }
+
+  if (days < 0) {
+    const previousMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    days += previousMonth;
+    months -= 1;
+  }
+
+  if (months < 0) {
+    months += 12;
+    years -= 1;
+  }
+
+  return { years, months, days, hours, minutes, seconds };
+}
+
+function formatAgeSummary(age) {
+  if (age.years > 0) {
+    return `${age.years} ${age.years === 1 ? 'year' : 'years'}`;
+  }
+  if (age.months > 0) {
+    return `${age.months} ${age.months === 1 ? 'month' : 'months'}`;
+  }
+  if (age.days > 0) {
+    return `${age.days} ${age.days === 1 ? 'day' : 'days'}`;
+  }
+  if (age.hours > 0) {
+    return `${age.hours} ${age.hours === 1 ? 'hour' : 'hours'}`;
+  }
+  if (age.minutes > 0) {
+    return `${age.minutes} ${age.minutes === 1 ? 'minute' : 'minutes'}`;
+  }
+  return `${age.seconds} ${age.seconds === 1 ? 'second' : 'seconds'}`;
+}
+
+function buildBreakdown(age) {
+  const units = ['years', 'months', 'days', 'hours', 'minutes', 'seconds'];
+  const labels = {
+    years: 'Years',
+    months: 'Months',
+    days: 'Days',
+    hours: 'Hours',
+    minutes: 'Minutes',
+    seconds: 'Seconds'
+  };
+  return units.map(key => ({
+    label: labels[key],
+    value: `${age[key]} ${age[key] === 1 ? labels[key].slice(0, -1).toLowerCase() : labels[key].toLowerCase()}`
+  }));
+}
+
+function buildEquivalent(age) {
+  const result = [];
+  const totalDays = age.days + age.months * 30 + age.years * 365;
+  const totalHours = totalDays * 24 + age.hours;
+  const totalMinutes = totalHours * 60 + age.minutes;
+  const totalSeconds = totalMinutes * 60 + age.seconds;
+
+  if (age.years > 0) {
+    result.push({ label: 'Months', value: `${age.years * 12 + age.months}` });
+    result.push({ label: 'Days', value: `${totalDays}` });
+    if (age.hours > 0 || age.minutes > 0 || age.seconds > 0) {
+      result.push({ label: 'Hours', value: `${totalHours}` });
+      result.push({ label: 'Minutes', value: `${totalMinutes}` });
+      result.push({ label: 'Seconds', value: `${totalSeconds}` });
+    }
+  } else if (age.months > 0) {
+    result.push({ label: 'Days', value: `${totalDays}` });
+    if (age.hours > 0 || age.minutes > 0 || age.seconds > 0) {
+      result.push({ label: 'Hours', value: `${totalHours}` });
+      result.push({ label: 'Minutes', value: `${totalMinutes}` });
+      result.push({ label: 'Seconds', value: `${totalSeconds}` });
+    }
+  }
+
+  return result;
 }
 
 window.addEventListener('load', initApp);
@@ -108,11 +238,53 @@ gpsBadge.addEventListener('click', manualGpsDetection);
 calculateBtn.addEventListener('click', calculateAge);
 toggleDetailsBtn.addEventListener('click', toggleDetailView);
 
+// Add calendar emoji click handler
+if (calendarEmojiButton && birthDateInput) {
+  calendarEmojiButton.addEventListener('click', () => {
+    birthDateInput.click();
+  });
+  calendarEmojiButton.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      birthDateInput.click();
+    }
+  });
+}
+
 function initApp() {
   prepareBirthDateInput();
   populateTimeZoneList();
   setTimeZone(selectedTimeZone);
   detectLocationAndSetTimeZone();
+  
+  // Add change event listener for date input to handle both formats
+  if (birthDateInput) {
+    birthDateInput.addEventListener('change', handleBirthDateChange);
+    birthDateInput.addEventListener('blur', handleBirthDateChange);
+  }
+}
+
+function handleBirthDateChange(event) {
+  let value = event.target.value.trim();
+  if (!value) return;
+  
+  // If value contains dots (DD.MM.YYYY format), convert to YYYY-MM-DD
+  if (value.includes('.')) {
+    const parts = value.split('.');
+    if (parts.length === 3) {
+      const day = parts[0].padStart(2, '0');
+      const month = parts[1].padStart(2, '0');
+      const year = parts[2];
+      
+      if (day && month && year && year.length === 4) {
+        // Validate the date
+        const testDate = new Date(year, month - 1, day);
+        if (testDate.getFullYear() == year && testDate.getMonth() == month - 1 && testDate.getDate() == day) {
+          event.target.value = `${year}-${month}-${day}`;
+        }
+      }
+    }
+  }
 }
 
 function populateTimeZoneList() {
