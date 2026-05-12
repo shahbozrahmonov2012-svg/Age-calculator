@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Age Calculator 2026</title>
+  <title>Online Age Calculator 2026</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -38,6 +38,7 @@
   <div class="form-group">
     <label for="birthDate"><span class="label-emoji calendar">🗓️</span>When were you born?</label>
     <input type="date" id="birthDate" required>
+    <p id="mobileDateHint" class="mobile-hint hidden">Type birth date as DD-MM-YYYY on mobile if the picker does not appear.</p>
     <button type="button" id="calculateBtn" class="primary-btn">
       <span class="button-emoji">✨</span> Calculate My Age
     </button>
@@ -56,7 +57,7 @@
 
     <div class="show-all-wrapper">
       <button type="button" id="toggleDetailsBtn" class="show-all-btn hidden">
-        📊 Show all breakdown
+        📊 Show all 
       </button>
     </div>
 

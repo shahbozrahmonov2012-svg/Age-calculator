@@ -9,10 +9,29 @@ const summaryText = document.getElementById('summaryText');
 const detailsContainer = document.getElementById('details');
 const equivalentContainer = document.getElementById('equivalent');
 const birthDateInput = document.getElementById('birthDate');
+const mobileDateHint = document.getElementById('mobileDateHint');
 
 let selectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 let updateInterval = null;
 let isGpsDetecting = false;
+
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.matchMedia('(max-width: 520px)').matches;
+}
+
+function prepareBirthDateInput() {
+  if (!birthDateInput) return;
+  if (isMobileDevice()) {
+    birthDateInput.type = 'text';
+    birthDateInput.placeholder = 'YYYY-MM-DD';
+    birthDateInput.setAttribute('inputmode', 'numeric');
+    birthDateInput.setAttribute('pattern', '\\d{4}-\\d{2}-\\d{2}');
+    birthDateInput.title = 'Type your birth date in YYYY-MM-DD format';
+    if (mobileDateHint) {
+      mobileDateHint.classList.remove('hidden');
+    }
+  }
+}
 
 // Xato bermasligi uchun bo'sh funksiya (agar HTML-da chaqirilgan bo'lsa)
 window.applyTimezoneFromInput = function() { return null; };
@@ -90,6 +109,7 @@ calculateBtn.addEventListener('click', calculateAge);
 toggleDetailsBtn.addEventListener('click', toggleDetailView);
 
 function initApp() {
+  prepareBirthDateInput();
   populateTimeZoneList();
   setTimeZone(selectedTimeZone);
   detectLocationAndSetTimeZone();
@@ -320,6 +340,11 @@ function calculateAge() {
     return;
   }
 
+  if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(birthInput.value)) {
+    showMessage('Use YYYY-MM-DD format on mobile or select a date on desktop.');
+    return;
+  }
+
   const birthDate = makeDateInTimeZone(birthInput.value, selectedTimeZone);
   const now = new Date();
 
@@ -354,6 +379,11 @@ function calculateAge() {
   equivalentContainer.classList.remove('hidden');
   detailsContainer.classList.add('hidden');
   toggleDetailsBtn.textContent = 'Show all breakdown';
+
+  if (isMobileDevice() && calculateBtn) {
+    calculateBtn.classList.add('mobile-ignite');
+    setTimeout(() => calculateBtn.classList.remove('mobile-ignite'), 900);
+  }
 }
 
 function toggleDetailView() {

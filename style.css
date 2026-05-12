@@ -428,6 +428,35 @@ button:hover::before {
   .detail-item {
     padding: 14px;
   }
+
+  .mobile-hint {
+    display: block;
+    margin-top: -8px;
+    margin-bottom: 12px;
+    color: #a8c6ff;
+    font-size: 0.9rem;
+    opacity: 0.92;
+  }
+
+  #calculateBtn.mobile-ignite {
+    animation: mobileButtonFlash 0.8s ease-out;
+    box-shadow: 0 22px 42px rgba(99, 247, 255, 0.35), 0 0 38px rgba(255, 99, 247, 0.24);
+  }
+}
+
+@keyframes mobileButtonFlash {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 18px 36px rgba(99, 247, 255, 0.28), 0 0 24px rgba(255, 99, 247, 0.18);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 26px 52px rgba(99, 247, 255, 0.45), 0 0 48px rgba(255, 99, 247, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 18px 36px rgba(99, 247, 255, 0.28), 0 0 24px rgba(255, 99, 247, 0.18);
+  }
 }
 
 @media (min-width: 900px) {
