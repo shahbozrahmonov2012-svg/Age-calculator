@@ -9,6 +9,7 @@ const summaryText = document.getElementById('summaryText');
 const detailsContainer = document.getElementById('details');
 const equivalentContainer = document.getElementById('equivalent');
 const birthDateInput = document.getElementById('birthDate');
+const birthDatePickerInput = document.getElementById('birthDatePicker');
 const mobileDateHint = document.getElementById('mobileDateHint');
 const calendarEmojiButton = document.getElementById('calendarEmojiButton');
 
@@ -75,27 +76,15 @@ function formatDisplayDate(dateValue) {
 
 function openBirthDatePicker() {
   if (!birthDateInput) return;
-  const current = normalizeDateValue(birthDateInput.value) || '';
-  if (current) {
-    birthDateInput.value = current;
+  if (birthDatePickerInput && typeof birthDatePickerInput.showPicker === 'function') {
+    const normalized = normalizeDateValue(birthDateInput.value);
+    birthDatePickerInput.value = normalized || '';
+    birthDatePickerInput.focus();
+    birthDatePickerInput.showPicker();
+    return;
   }
-  const restore = () => {
-    const value = birthDateInput.value;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      birthDateInput.value = formatDisplayDate(value);
-    }
-    birthDateInput.type = 'text';
-    birthDateInput.removeEventListener('blur', restore);
-    birthDateInput.removeEventListener('change', restore);
-  };
-  if (typeof birthDateInput.showPicker === 'function') {
-    birthDateInput.type = 'date';
-    birthDateInput.addEventListener('blur', restore);
-    birthDateInput.addEventListener('change', restore);
-    birthDateInput.showPicker();
-  } else {
-    birthDateInput.focus();
-  }
+
+  birthDateInput.focus();
 }
 
 function parseDateInput(dateValue) {
@@ -288,6 +277,13 @@ if (calendarEmojiButton && birthDateInput) {
 
 function initApp() {
   prepareBirthDateInput();
+  if (birthDatePickerInput) {
+    birthDatePickerInput.addEventListener('change', () => {
+      if (birthDatePickerInput.value) {
+        birthDateInput.value = formatDisplayDate(birthDatePickerInput.value);
+      }
+    });
+  }
   populateTimeZoneList();
   setTimeZone(selectedTimeZone);
   detectLocationAndSetTimeZone();
