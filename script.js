@@ -75,16 +75,17 @@ function formatDisplayDate(dateValue) {
 }
 
 function openBirthDatePicker() {
-  if (!birthDateInput) return;
-  if (birthDatePickerInput && typeof birthDatePickerInput.showPicker === 'function') {
-    const normalized = normalizeDateValue(birthDateInput.value);
-    birthDatePickerInput.value = normalized || '';
-    birthDatePickerInput.focus();
-    birthDatePickerInput.showPicker();
-    return;
-  }
+  if (!birthDateInput || !birthDatePickerInput) return;
 
-  birthDateInput.focus();
+  const normalized = normalizeDateValue(birthDateInput.value);
+  birthDatePickerInput.value = normalized || '';
+  birthDatePickerInput.focus();
+
+  if (typeof birthDatePickerInput.showPicker === 'function') {
+    birthDatePickerInput.showPicker();
+  } else if (typeof birthDatePickerInput.click === 'function') {
+    birthDatePickerInput.click();
+  }
 }
 
 function parseDateInput(dateValue) {
@@ -278,11 +279,14 @@ if (calendarEmojiButton && birthDateInput) {
 function initApp() {
   prepareBirthDateInput();
   if (birthDatePickerInput) {
-    birthDatePickerInput.addEventListener('change', () => {
+    const syncPickerValue = () => {
       if (birthDatePickerInput.value) {
         birthDateInput.value = formatDisplayDate(birthDatePickerInput.value);
       }
-    });
+    };
+
+    birthDatePickerInput.addEventListener('change', syncPickerValue);
+    birthDatePickerInput.addEventListener('input', syncPickerValue);
   }
   populateTimeZoneList();
   setTimeZone(selectedTimeZone);
