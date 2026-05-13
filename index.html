@@ -36,13 +36,15 @@
   </div>
 
   <div class="form-group">
-    <label for="birthDate" title="Click to open date picker or enter date manually">When were you born?</label>
-    <div class="birth-date-entry">
-      <button type="button" id="calendarEmojiButton" class="calendar-button" title="Open date picker">🗓️</button>
-      <input type="text" id="birthDate" required title="Enter your birth date as DD.MM.YYYY or open the calendar">
-      <input type="date" id="birthDatePicker" class="hidden-date-picker" aria-hidden="true" tabindex="-1">
+    <label for="birthDate">When were you born?</label>
+    <div class="date-display-line">
+      <span class="calendar-icon" id="calendarEmojiButton">🗓️</span>
+      <span id="chosenDate">Choose date</span>
     </div>
-    <p id="mobileDateHint" class="mobile-hint hidden">Type numbers or use the calendar icon to choose your birth date.</p>
+    <div class="date-input-line">
+      <input type="text" id="birthDate" placeholder="YYYY-MM-DD" required>
+    </div>
+    <p id="mobileDateHint" class="mobile-hint hidden">Enter your birth date</p>
     <button type="button" id="calculateBtn" class="primary-btn">
       <span class="button-emoji">✨</span> Calculate My Age
     </button>

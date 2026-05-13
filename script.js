@@ -9,7 +9,6 @@ const summaryText = document.getElementById('summaryText');
 const detailsContainer = document.getElementById('details');
 const equivalentContainer = document.getElementById('equivalent');
 const birthDateInput = document.getElementById('birthDate');
-const birthDatePickerInput = document.getElementById('birthDatePicker');
 const mobileDateHint = document.getElementById('mobileDateHint');
 const calendarEmojiButton = document.getElementById('calendarEmojiButton');
 
@@ -21,15 +20,28 @@ function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.matchMedia('(max-width: 520px)').matches;
 }
 
+function updateChosenDateDisplay() {
+  const chosenDate = document.getElementById('chosenDate');
+  if (!chosenDate) return;
+  const value = birthDateInput.value.trim();
+  chosenDate.textContent = value || 'Choose date';
+}
+
 function prepareBirthDateInput() {
   if (!birthDateInput) return;
-  birthDateInput.type = 'text';
-  birthDateInput.placeholder = 'DD.MM.YYYY';
-  birthDateInput.setAttribute('inputmode', 'numeric');
-  birthDateInput.setAttribute('maxlength', '10');
-  birthDateInput.autocomplete = 'bday';
-  birthDateInput.title = 'Enter your birth date as DD.MM.YYYY or use the calendar icon';
-  birthDateInput.addEventListener('input', formatDateInput);
+  if (isMobileDevice()) {
+    birthDateInput.type = 'text';
+    birthDateInput.placeholder = 'YYYY-MM-DD';
+    birthDateInput.setAttribute('inputmode', 'numeric');
+    birthDateInput.setAttribute('pattern', '\\d{4}-\\d{2}-\\d{2}');
+    birthDateInput.title = 'Enter your birth date as YYYY-MM-DD';
+  } else {
+    birthDateInput.type = 'date';
+    birthDateInput.placeholder = '';
+  }
+  updateChosenDateDisplay();
+  birthDateInput.addEventListener('input', updateChosenDateDisplay);
+  birthDateInput.addEventListener('change', updateChosenDateDisplay);
   birthDateInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -38,7 +50,7 @@ function prepareBirthDateInput() {
   });
   if (mobileDateHint) {
     mobileDateHint.classList.remove('hidden');
-    mobileDateHint.textContent = 'Type numbers or use the calendar icon to choose your birth date.';
+    mobileDateHint.textContent = 'Type your birth date as YYYY-MM-DD on mobile.';
   }
 }
 
@@ -56,39 +68,25 @@ function formatDateInput(event) {
 
 function normalizeDateValue(dateValue) {
   if (!dateValue) return null;
-  const cleaned = dateValue.trim().replace(/-/g, '.');
-  if (/^\d{2}\.\d{2}\.\d{4}$/.test(cleaned)) {
-    const [day, month, year] = cleaned.split('.');
-    return `${year}-${month}-${day}`;
-  }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue.trim())) {
-    return dateValue.trim();
+  const cleaned = dateValue.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
+    return cleaned;
   }
   return null;
 }
 
 function formatDisplayDate(dateValue) {
   if (!dateValue) return '';
-  const match = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(dateValue);
-  if (!match) return dateValue;
-  return `${match[3]}.${match[2]}.${match[1]}`;
-}
-
-function openBirthDatePicker() {
-  if (!birthDateInput || !birthDatePickerInput) return;
-
-  const normalized = normalizeDateValue(birthDateInput.value);
-  birthDatePickerInput.value = normalized || '';
-  birthDatePickerInput.focus();
-
-  if (typeof birthDatePickerInput.showPicker === 'function') {
-    birthDatePickerInput.showPicker();
-  } else if (typeof birthDatePickerInput.click === 'function') {
-    birthDatePickerInput.click();
-  }
+  return dateValue; // Already YYYY-MM-DD
 }
 
 function parseDateInput(dateValue) {
+  const normalized = normalizeDateValue(dateValue);
+  if (!normalized) return null;
+  const [year, month, day] = normalized.split('-').map(Number);
+  const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+  return date && !isNaN(date.getTime()) ? date : null;
+}
   const normalized = normalizeDateValue(dateValue);
   if (!normalized) return null;
   const [year, month, day] = normalized.split('-').map(Number);
@@ -107,7 +105,7 @@ function calculateAge() {
 
   const normalizedDate = normalizeDateValue(birthDateValue);
   if (!normalizedDate) {
-    showMessage('Invalid date format. Use DD.MM.YYYY or YYYY-MM-DD.');
+    showMessage('Invalid date format. Use YYYY-MM-DD.');
     return;
   }
 
@@ -265,29 +263,8 @@ gpsBadge.addEventListener('click', manualGpsDetection);
 calculateBtn.addEventListener('click', calculateAge);
 toggleDetailsBtn.addEventListener('click', toggleDetailView);
 
-// Add calendar emoji click handler
-if (calendarEmojiButton && birthDateInput) {
-  calendarEmojiButton.addEventListener('click', openBirthDatePicker);
-  calendarEmojiButton.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openBirthDatePicker();
-    }
-  });
-}
-
 function initApp() {
   prepareBirthDateInput();
-  if (birthDatePickerInput) {
-    const syncPickerValue = () => {
-      if (birthDatePickerInput.value) {
-        birthDateInput.value = formatDisplayDate(birthDatePickerInput.value);
-      }
-    };
-
-    birthDatePickerInput.addEventListener('change', syncPickerValue);
-    birthDatePickerInput.addEventListener('input', syncPickerValue);
-  }
   populateTimeZoneList();
   setTimeZone(selectedTimeZone);
   detectLocationAndSetTimeZone();
