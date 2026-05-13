@@ -22,51 +22,87 @@ function isMobileDevice() {
 
 function prepareBirthDateInput() {
   if (!birthDateInput) return;
-  if (isMobileDevice()) {
-    birthDateInput.type = 'text';
-    birthDateInput.placeholder = 'DD.MM.YYYY';
-    birthDateInput.setAttribute('inputmode', 'numeric');
-    birthDateInput.setAttribute('maxlength', '10');
-    birthDateInput.title = 'Enter your birth date as DD.MM.YYYY';
-    if (mobileDateHint) {
-      mobileDateHint.classList.remove('hidden');
+  birthDateInput.type = 'text';
+  birthDateInput.placeholder = 'DD.MM.YYYY';
+  birthDateInput.setAttribute('inputmode', 'numeric');
+  birthDateInput.setAttribute('maxlength', '10');
+  birthDateInput.autocomplete = 'bday';
+  birthDateInput.title = 'Enter your birth date as DD.MM.YYYY or use the calendar icon';
+  birthDateInput.addEventListener('input', formatDateInput);
+  birthDateInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      calculateAge();
     }
-    birthDateInput.addEventListener('input', formatMobileDateInput);
+  });
+  if (mobileDateHint) {
+    mobileDateHint.classList.remove('hidden');
+    mobileDateHint.textContent = 'Type numbers or use the calendar icon to choose your birth date.';
   }
 }
 
-function formatMobileDateInput(event) {
-  let value = event.target.value.replace(/\D/g, '');
-  if (value.length >= 2) {
-    value = value.slice(0, 2) + '.' + value.slice(2);
+function formatDateInput(event) {
+  const raw = event.target.value.replace(/\D/g, '').slice(0, 8);
+  let formatted = raw;
+  if (raw.length >= 3) {
+    formatted = `${raw.slice(0, 2)}.${raw.slice(2)}`;
   }
-  if (value.length >= 5) {
-    value = value.slice(0, 5) + '.' + value.slice(5, 9);
+  if (raw.length >= 5) {
+    formatted = `${raw.slice(0, 2)}.${raw.slice(2, 4)}.${raw.slice(4, 8)}`;
   }
-  event.target.value = value;
+  event.target.value = formatted;
+}
+
+function normalizeDateValue(dateValue) {
+  if (!dateValue) return null;
+  const cleaned = dateValue.trim().replace(/-/g, '.');
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(cleaned)) {
+    const [day, month, year] = cleaned.split('.');
+    return `${year}-${month}-${day}`;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue.trim())) {
+    return dateValue.trim();
+  }
+  return null;
+}
+
+function formatDisplayDate(dateValue) {
+  if (!dateValue) return '';
+  const match = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(dateValue);
+  if (!match) return dateValue;
+  return `${match[3]}.${match[2]}.${match[1]}`;
+}
+
+function openBirthDatePicker() {
+  if (!birthDateInput) return;
+  const current = normalizeDateValue(birthDateInput.value) || '';
+  if (current) {
+    birthDateInput.value = current;
+  }
+  const restore = () => {
+    const value = birthDateInput.value;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      birthDateInput.value = formatDisplayDate(value);
+    }
+    birthDateInput.type = 'text';
+    birthDateInput.removeEventListener('blur', restore);
+    birthDateInput.removeEventListener('change', restore);
+  };
+  if (typeof birthDateInput.showPicker === 'function') {
+    birthDateInput.type = 'date';
+    birthDateInput.addEventListener('blur', restore);
+    birthDateInput.addEventListener('change', restore);
+    birthDateInput.showPicker();
+  } else {
+    birthDateInput.focus();
+  }
 }
 
 function parseDateInput(dateValue) {
-  if (!dateValue) return null;
-  
-  let date = null;
-  
-  // Check if it's DD.MM.YYYY format (mobile)
-  if (dateValue.includes('.')) {
-    const parts = dateValue.split('.');
-    if (parts.length === 3) {
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10);
-      const year = parseInt(parts[2], 10);
-      if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
-        date = new Date(year, month - 1, day, 0, 0, 0, 0);
-      }
-    }
-  } else {
-    // Try standard date parsing (YYYY-MM-DD)
-    date = new Date(dateValue + 'T00:00:00');
-  }
-  
+  const normalized = normalizeDateValue(dateValue);
+  if (!normalized) return null;
+  const [year, month, day] = normalized.split('-').map(Number);
+  const date = new Date(year, month - 1, day, 0, 0, 0, 0);
   return date && !isNaN(date.getTime()) ? date : null;
 }
 
@@ -74,19 +110,20 @@ window.applyTimezoneFromInput = function() { return null; };
 
 function calculateAge() {
   const birthDateValue = birthDateInput.value;
-  
   if (!birthDateValue) {
     showMessage('Please select your birth date.');
     return;
   }
 
-  const birthDate = parseDateInput(birthDateValue);
-  if (!birthDate || isNaN(birthDate.getTime())) {
-    showMessage('Invalid date format.');
+  const normalizedDate = normalizeDateValue(birthDateValue);
+  if (!normalizedDate) {
+    showMessage('Invalid date format. Use DD.MM.YYYY or YYYY-MM-DD.');
     return;
   }
 
+  const birthDate = makeDateInTimeZone(normalizedDate, selectedTimeZone);
   const now = new Date();
+
   if (birthDate > now) {
     showMessage('Birth date cannot be in the future.');
     return;
@@ -240,13 +277,11 @@ toggleDetailsBtn.addEventListener('click', toggleDetailView);
 
 // Add calendar emoji click handler
 if (calendarEmojiButton && birthDateInput) {
-  calendarEmojiButton.addEventListener('click', () => {
-    birthDateInput.click();
-  });
+  calendarEmojiButton.addEventListener('click', openBirthDatePicker);
   calendarEmojiButton.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      birthDateInput.click();
+      openBirthDatePicker();
     }
   });
 }
@@ -256,35 +291,6 @@ function initApp() {
   populateTimeZoneList();
   setTimeZone(selectedTimeZone);
   detectLocationAndSetTimeZone();
-  
-  // Add change event listener for date input to handle both formats
-  if (birthDateInput) {
-    birthDateInput.addEventListener('change', handleBirthDateChange);
-    birthDateInput.addEventListener('blur', handleBirthDateChange);
-  }
-}
-
-function handleBirthDateChange(event) {
-  let value = event.target.value.trim();
-  if (!value) return;
-  
-  // If value contains dots (DD.MM.YYYY format), convert to YYYY-MM-DD
-  if (value.includes('.')) {
-    const parts = value.split('.');
-    if (parts.length === 3) {
-      const day = parts[0].padStart(2, '0');
-      const month = parts[1].padStart(2, '0');
-      const year = parts[2];
-      
-      if (day && month && year && year.length === 4) {
-        // Validate the date
-        const testDate = new Date(year, month - 1, day);
-        if (testDate.getFullYear() == year && testDate.getMonth() == month - 1 && testDate.getDate() == day) {
-          event.target.value = `${year}-${month}-${day}`;
-        }
-      }
-    }
-  }
 }
 
 function populateTimeZoneList() {
@@ -504,72 +510,10 @@ function updateLocalTime() {
   timezoneInfo.textContent = `${selectedTimeZone} • ${formatted}`;
 }
 
-function calculateAge() {
-  const birthInput = document.getElementById('birthDate');
-  
-  if (!birthInput.value) {
-    showMessage('Please select your birth date.');
-    return;
-  }
-
-  if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(birthInput.value)) {
-    showMessage('Use YYYY-MM-DD format on mobile or select a date on desktop.');
-    return;
-  }
-
-  const birthDate = makeDateInTimeZone(birthInput.value, selectedTimeZone);
-  const now = new Date();
-
-  if (birthDate > now) {
-    showMessage('Birth date cannot be in the future.');
-    return;
-  }
-
-  const age = getExactAge(birthDate, now);
-  const primaryUnit = getPrimaryUnit(age);
-  const summary = formatAgeSummary(age, primaryUnit);
-  const breakdown = buildBreakdown(age, primaryUnit);
-  const equivalent = buildEquivalent(age, primaryUnit);
-
-  summaryText.textContent = summary;
-  
-  if (equivalent.length > 0) {
-    equivalentContainer.innerHTML = `
-      <div class="equivalent-title">Also as:</div>
-      ${equivalent.map(item => `<div class="equivalent-item"><span>${item.label}</span><strong>${item.value}</strong></div>`).join('')}
-    `;
-  } else {
-    equivalentContainer.innerHTML = '';
-  }
-
-  detailsContainer.innerHTML = breakdown
-    .map(item => `<div class="detail-item"><span>${item.label}</span><strong>${item.value}</strong></div>`)
-    .join('');
-
-  resultCard.classList.remove('hidden');
-  toggleDetailsBtn.classList.remove('hidden');
-  equivalentContainer.classList.remove('hidden');
-  detailsContainer.classList.add('hidden');
-  toggleDetailsBtn.textContent = 'Show all breakdown';
-
-  if (isMobileDevice() && calculateBtn) {
-    calculateBtn.classList.add('mobile-ignite');
-    setTimeout(() => calculateBtn.classList.remove('mobile-ignite'), 900);
-  }
-}
-
 function toggleDetailView() {
   const isHidden = detailsContainer.classList.contains('hidden');
   detailsContainer.classList.toggle('hidden', !isHidden);
   toggleDetailsBtn.textContent = isHidden ? 'Hide breakdown' : 'Show all breakdown';
-}
-
-function showMessage(message) {
-  resultCard.classList.remove('hidden');
-  toggleDetailsBtn.classList.add('hidden');
-  detailsContainer.classList.add('hidden');
-  equivalentContainer.classList.add('hidden');
-  summaryText.textContent = message;
 }
 
 function makeDateInTimeZone(dateString, timeZone) {
@@ -594,135 +538,4 @@ function getTimeZoneOffset(utcDate, timeZone) {
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
   const asLocal = new Date(`${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}:${values.second}Z`);
   return (asLocal - utcDate) / 60000;
-}
-
-function getExactAge(birthDate, now) {
-  let years = now.getFullYear() - birthDate.getFullYear();
-  let months = now.getMonth() - birthDate.getMonth();
-  let days = now.getDate() - birthDate.getDate();
-  let hours = now.getHours() - birthDate.getHours();
-  let minutes = now.getMinutes() - birthDate.getMinutes();
-  let seconds = now.getSeconds() - birthDate.getSeconds();
-
-  if (seconds < 0) {
-    seconds += 60;
-    minutes -= 1;
-  }
-
-  if (minutes < 0) {
-    minutes += 60;
-    hours -= 1;
-  }
-
-  if (hours < 0) {
-    hours += 24;
-    days -= 1;
-  }
-
-  if (days < 0) {
-    const previousMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-    days += previousMonth;
-    months -= 1;
-  }
-
-  if (months < 0) {
-    months += 12;
-    years -= 1;
-  }
-
-  return { years, months, days, hours, minutes, seconds };
-}
-
-function getPrimaryUnit(age) {
-  if (age.years > 0) return 'years';
-  if (age.months > 0) return 'months';
-  if (age.days > 0) return 'days';
-  if (age.hours > 0) return 'hours';
-  if (age.minutes > 0) return 'minutes';
-  return 'seconds';
-}
-
-function formatAgeSummary(age, unit) {
-  const value = age[unit];
-  return `${value} ${pluralize(value, unit)}`;
-}
-
-function buildBreakdown(age, primaryUnit) {
-  const units = ['years', 'months', 'days', 'hours', 'minutes', 'seconds'];
-  const labels = {
-    years: 'Years',
-    months: 'Months',
-    days: 'Days',
-    hours: 'Hours',
-    minutes: 'Minutes',
-    seconds: 'Seconds'
-  };
-
-  const startIndex = units.indexOf(primaryUnit);
-  const result = [];
-
-  for (let i = startIndex; i < units.length; i += 1) {
-    const key = units[i];
-    const value = age[key];
-    if (value > 0 || i === startIndex) {
-      result.push({
-        label: labels[key],
-        value: `${value} ${pluralize(value, key)}`
-      });
-    }
-  }
-
-  return result;
-}
-
-function buildEquivalent(age, primaryUnit) {
-  const result = [];
-  const totalDays = age.days + age.months * 30 + age.years * 365;
-  const totalHours = totalDays * 24 + age.hours;
-  const totalMinutes = totalHours * 60 + age.minutes;
-  const totalSeconds = totalMinutes * 60 + age.seconds;
-
-  if (primaryUnit === 'years' && (age.months > 0 || age.days > 0 || age.hours > 0 || age.minutes > 0 || age.seconds > 0)) {
-    result.push({ label: 'Months', value: `${age.years * 12 + age.months}` });
-    result.push({ label: 'Days', value: `${totalDays}` });
-    if (age.hours > 0 || age.minutes > 0 || age.seconds > 0) {
-      result.push({ label: 'Hours', value: `${totalHours}` });
-      result.push({ label: 'Minutes', value: `${totalMinutes}` });
-      result.push({ label: 'Seconds', value: `${totalSeconds}` });
-    }
-  } else if (primaryUnit === 'months') {
-    result.push({ label: 'Days', value: `${totalDays}` });
-    if (age.hours > 0 || age.minutes > 0 || age.seconds > 0) {
-      result.push({ label: 'Hours', value: `${totalHours}` });
-      result.push({ label: 'Minutes', value: `${totalMinutes}` });
-      result.push({ label: 'Seconds', value: `${totalSeconds}` });
-    }
-  } else if (primaryUnit === 'days') {
-    result.push({ label: 'Hours', value: `${totalHours}` });
-    result.push({ label: 'Minutes', value: `${totalMinutes}` });
-    if (age.seconds > 0) {
-      result.push({ label: 'Seconds', value: `${totalSeconds}` });
-    }
-  } else if (primaryUnit === 'hours') {
-    result.push({ label: 'Minutes', value: `${totalMinutes}` });
-    if (age.seconds > 0) {
-      result.push({ label: 'Seconds', value: `${totalSeconds}` });
-    }
-  } else if (primaryUnit === 'minutes') {
-    result.push({ label: 'Seconds', value: `${totalSeconds}` });
-  }
-
-  return result;
-}
-
-function pluralize(value, unit) {
-  const singular = {
-    years: 'year',
-    months: 'month',
-    days: 'day',
-    hours: 'hour',
-    minutes: 'minute',
-    seconds: 'second'
-  };
-  return value === 1 ? singular[unit] : unit;
 }
