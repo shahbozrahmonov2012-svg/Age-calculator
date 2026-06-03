@@ -1,0 +1,13 @@
+{
+  "name": "Age Calculator 2026",
+  "short_name": "AgeCalc",
+  "description": "Your exact age – years, months, days, seconds, zodiac, life stats and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05060f",
+  "theme_color": "#5ef0ff",
+  "icons": [
+    { "src": "favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "favicon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

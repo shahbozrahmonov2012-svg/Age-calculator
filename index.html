@@ -1,77 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8725646833145511" crossorigin="anonymous"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Age Calculator 2026</title>
+  <title>Age Calculator 2026 – Exact Age, Countdown & Life Stats</title>
+  <meta name="description" content="Calculate your exact age in years, months, days, hours, minutes and seconds. Get birthday countdown, life stats, zodiac sign, historical events and more. Free, fast, beautiful.">
+  <meta name="keywords" content="age calculator, exact age, birthday countdown, how old am I, age in days, life statistics">
+  <meta property="og:title" content="Age Calculator 2026 – Know Your Exact Age">
+  <meta property="og:description" content="Discover your exact age, birthday countdown, zodiac, life stats and historical events on your birth date.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="container">
-  <div class="header-section">
-    <h1>Age Calculator <span class="title-emoji">🧮</span></h1>
-    <p class="subtitle">Know your exact age in years, months, days, and more</p>
-  </div>
-
-  <div class="settings">
-    <div class="setting-group">
-      <label for="timezoneInput"><span class="label-emoji">📍</span>Your Region</label>
-      <div class="timezone-field">
-        <input 
-          list="timezoneList" 
-          id="timezoneInput" 
-          placeholder="Search timezone or tap GPS to auto-detect"
-          autocomplete="off"
-        />
-        <datalist id="timezoneList"></datalist>
-        <button type="button" class="gps-button" id="gpsBadge" title="Auto-detect your location">📍</button>
+ 
+<!-- Cinematic background -->
+<div class="bg-orbs" aria-hidden="true">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+ 
+<!-- Desktop: floating particles (added via JS) -->
+<canvas id="particleCanvas" aria-hidden="true"></canvas>
+ 
+<div class="page-wrapper">
+ 
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo-icon">⧖</span>
+      <span class="logo-text">AgeCalc</span>
+    </div>
+    <nav class="header-nav">
+      <a href="#calculator" class="nav-link active">Calculator</a>
+      <a href="#gap" class="nav-link">Age Gap</a>
+      <a href="#stats" class="nav-link desktop-only">Life Stats</a>
+    </nav>
+  </header>
+ 
+  <main>
+ 
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <p class="hero-eyebrow">⚡ Instant · Precise · Beautiful</p>
+      <h1 class="hero-title">
+        <span class="word w1">How</span>
+        <span class="word w2">Old</span>
+        <span class="word w3 accent-text">Are You?</span>
+      </h1>
+      <p class="hero-sub">Your exact age — down to the second — plus your zodiac, life stats, countdown to next birthday, age gap calculator, and the world on the day you were born.</p>
+    </section>
+ 
+    <!-- ===== AD UNIT: TOP ===== -->
+    <div class="ad-container ad-top" aria-label="Advertisement">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-8725646833145511"
+           data-ad-slot="AUTO"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+ 
+    <!-- ===== MAIN CALCULATOR ===== -->
+    <section class="card glass" id="calculator">
+      <div class="card-header">
+        <h2 class="card-title">🎂 Your Age</h2>
+        <p class="card-desc">Enter your birth date to see everything</p>
       </div>
-    </div>
-
-    <div class="info-line">
-      <span id="timezoneInfo">Detecting location...</span>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="birthDate">When were you born?</label>
-    <div class="date-display-line">
-      <span class="calendar-icon" id="calendarEmojiButton">🗓️</span>
-      <span id="chosenDate">Choose date</span>
-    </div>
-    <div class="date-input-line">
-      <input type="text" id="birthDate" placeholder="YYYY-MM-DD" required>
-    </div>
-    <p id="mobileDateHint" class="mobile-hint hidden">Enter your birth date</p>
-    <button type="button" id="calculateBtn" class="primary-btn">
-      <span class="button-emoji">✨</span> Calculate My Age
-    </button>
-  </div>
-
-  <div id="result" class="result-card hidden">
-    <div class="summary-section">
-      <div class="age-display-wrapper">
-        <div class="age-display">
-          <span id="summaryText"></span>
+ 
+      <!-- Timezone -->
+      <div class="field-group">
+        <label class="field-label" for="timezoneInput">📍 Your Timezone</label>
+        <div class="tz-row">
+          <div class="input-wrap">
+            <input list="timezoneList" id="timezoneInput" placeholder="Search timezone…" autocomplete="off">
+            <datalist id="timezoneList"></datalist>
+          </div>
+          <button class="btn-gps" id="gpsBadge" title="Auto-detect timezone">
+            <span id="gpsIcon">📍</span>
+          </button>
+        </div>
+        <div class="tz-info" id="timezoneInfo">Detecting…</div>
+      </div>
+ 
+      <!-- Birth date -->
+      <div class="field-group">
+        <label class="field-label" for="birthDate">🗓️ Birth Date</label>
+        <div class="date-row">
+          <input type="text" id="birthDate" placeholder="YYYY-MM-DD" autocomplete="off" inputmode="numeric">
+          <button class="btn-calendar desktop-only" id="calendarBtn" title="Pick date">📅</button>
+          <input type="date" id="hiddenDatePicker" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+        </div>
+        <div class="chosen-date-badge" id="chosenDateBadge">No date chosen</div>
+      </div>
+ 
+      <!-- Calculate -->
+      <button class="btn-primary" id="calculateBtn">
+        <span class="btn-text">✨ Calculate My Age</span>
+        <span class="btn-shine"></span>
+      </button>
+    </section>
+ 
+    <!-- ===== RESULTS ===== -->
+    <div id="resultsArea" class="hidden">
+ 
+      <!-- Live Age Display -->
+      <section class="card glass result-hero" id="resultHero">
+        <div class="result-headline">
+          <div class="age-number" id="ageHeadline">—</div>
+          <div class="age-label" id="ageLabel">years old</div>
+        </div>
+        <div class="live-badge">🔴 Live</div>
+        <div class="live-clock" id="liveClock">00y 00m 00d 00h 00min 00s</div>
+        <div class="result-grid" id="resultGrid"></div>
+      </section>
+ 
+      <!-- Countdown to birthday -->
+      <section class="card glass" id="birthdayCountdown">
+        <h2 class="card-title">🎉 Next Birthday</h2>
+        <div class="countdown-display" id="countdownDisplay"></div>
+      </section>
+ 
+      <!-- AD: After results -->
+      <div class="ad-container" aria-label="Advertisement">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-8725646833145511"
+             data-ad-slot="AUTO"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+ 
+      <!-- Zodiac + Life Stats -->
+      <div class="two-col">
+        <section class="card glass" id="zodiacCard">
+          <h2 class="card-title">♈ Zodiac & Birth Info</h2>
+          <div class="zodiac-display" id="zodiacDisplay"></div>
+        </section>
+ 
+        <section class="card glass" id="lifeStatsCard">
+          <h2 class="card-title">📊 Life in Numbers</h2>
+          <div class="life-stats" id="lifeStatsDisplay"></div>
+        </section>
+      </div>
+ 
+      <!-- Full Breakdown (toggle) -->
+      <section class="card glass" id="breakdownCard">
+        <button class="btn-toggle" id="toggleBreakdown">
+          <span>📋 Full Breakdown</span><span class="chevron">▼</span>
+        </button>
+        <div class="breakdown-grid hidden" id="breakdownGrid"></div>
+      </section>
+ 
+      <!-- Share -->
+      <section class="card glass share-card" id="shareCard">
+        <h2 class="card-title">🔗 Share Your Age</h2>
+        <div class="share-buttons">
+          <button class="btn-share btn-whatsapp" id="shareWhatsapp">💬 WhatsApp</button>
+          <button class="btn-share btn-twitter" id="shareTwitter">🐦 Twitter/X</button>
+          <button class="btn-share btn-copy" id="shareCopy">📋 Copy Link</button>
+        </div>
+      </section>
+ 
+      <!-- Historical events (desktop enriched) -->
+      <section class="card glass desktop-only" id="historyCard">
+        <h2 class="card-title">📰 When You Were Born</h2>
+        <p class="card-desc">Fun facts & world context from your birth year</p>
+        <div id="historyContent" class="history-grid"></div>
+      </section>
+ 
+      <!-- AD: Bottom -->
+      <div class="ad-container ad-bottom" aria-label="Advertisement">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-8725646833145511"
+             data-ad-slot="AUTO"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+ 
+    </div><!-- /resultsArea -->
+ 
+    <!-- ===== AGE GAP CALCULATOR ===== -->
+    <section class="card glass" id="gap">
+      <div class="card-header">
+        <h2 class="card-title">👫 Age Gap Calculator</h2>
+        <p class="card-desc">Compare ages between two people</p>
+      </div>
+      <div class="gap-row">
+        <div class="field-group">
+          <label class="field-label" for="gapDate1">Person 1</label>
+          <input type="text" id="gapDate1" placeholder="YYYY-MM-DD" inputmode="numeric">
+        </div>
+        <div class="gap-vs">VS</div>
+        <div class="field-group">
+          <label class="field-label" for="gapDate2">Person 2</label>
+          <input type="text" id="gapDate2" placeholder="YYYY-MM-DD" inputmode="numeric">
         </div>
       </div>
-    </div>
-
-    <div id="equivalent" class="equivalent hidden"></div>
-
-    <div class="show-all-wrapper">
-      <button type="button" id="toggleDetailsBtn" class="show-all-btn hidden">
-        📊 Show all 
-      </button>
-    </div>
-
-    <div id="details" class="details hidden"></div>
-  </div>
+      <button class="btn-primary btn-secondary-style" id="gapBtn">⚖️ Compare Ages</button>
+      <div class="gap-result hidden" id="gapResult"></div>
+    </section>
+ 
+    <!-- ===== LIFE STATS INPUT (desktop extra) ===== -->
+    <section class="card glass desktop-only" id="stats">
+      <div class="card-header">
+        <h2 class="card-title">🧬 Personalized Life Stats</h2>
+        <p class="card-desc">Estimate real numbers based on your age</p>
+      </div>
+      <div id="lifeStatsExtended" class="life-stats-ext">
+        <p class="muted-text">Calculate your age first to see detailed life stats 👆</p>
+      </div>
+    </section>
+ 
+    <!-- ===== FOOTER ===== -->
+    <footer class="site-footer">
+      <p>© 2026 AgeCalc · Free forever · No sign-up needed</p>
+      <p class="footer-small">Made with ❤️ · <a href="#calculator">Back to top ↑</a></p>
+    </footer>
+ 
+  </main>
 </div>
-
+ 
 <script src="script.js"></script>
-
 </body>
 </html>
